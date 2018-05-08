@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.wordplat.quickstart.widget.pulllistview.PullListLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/pullListLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.wordplat.ikvstockchart.InteractiveKLineLayout
+        android:id="@+id/kLineLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:increasingStyle="stroke"
+        app:decreasingStyle="stroke">
+
+        <TextView
+            android:id="@+id/MA_Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginTop="12dp"
+            android:layout_marginRight="12dp"
+            android:text="@string/ma_normal"
+            android:textSize="10dp"
+            android:textColor="#282b34"/>
+
+        <TextView
+            android:id="@+id/StockIndex_Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|bottom"
+            android:layout_marginRight="12dp"
+            android:layout_marginBottom="75dp"
+            android:text="@string/macd_normal"
+            android:textSize="10dp"
+            android:textColor="#282b34"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginLeft="12dp"
+            android:layout_marginBottom="190dp"
+            android:text="Volume"
+            android:textSize="10dp"
+            android:textColor="#282b34"/>
+
+        <TextView
+            android:id="@+id/Volume_Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|bottom"
+            android:layout_marginRight="12dp"
+            android:layout_marginBottom="190dp"
+            android:text=""
+            android:textSize="10dp"
+            android:textColor="#282b34"/>
+
+        <RadioGroup
+            android:id="@+id/But_Group"
+            android:layout_width="150dp"
+            android:layout_height="@dimen/stock_index_tab_height"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="90dp"
+            android:layout_gravity="bottom"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/MACD_But"
+                style="@style/StockIndexTabStyle"
+                android:layout_height="match_parent"
+                android:text="MACD"/>
+
+            <RadioButton
+                android:id="@+id/RSI_But"
+                style="@style/StockIndexTabStyle"
+                android:layout_height="match_parent"
+                android:text="RSI"/>
+
+            <RadioButton
+                android:id="@+id/KDJ_But"
+                style="@style/StockIndexTabStyle"
+                android:layout_height="match_parent"
+                android:text="KDJ"/>
+
+            <RadioButton
+                android:id="@+id/BOLL_But"
+                style="@style/StockIndexTabStyle"
+                android:layout_height="match_parent"
+                android:text="BOLL"/>
+
+        </RadioGroup>
+
+        <ImageView
+            android:id="@+id/Left_Loading_Image"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="20dp"
+            android:layout_gravity="center_vertical"
+            android:visibility="gone"
+            app:srcCompat="@drawable/vector_drawable_loading2_anim"/>
+
+        <ImageView
+            android:id="@+id/Right_Loading_Image"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginRight="20dp"
+            android:layout_gravity="right|center_vertical"
+            android:visibility="gone"
+            app:srcCompat="@drawable/vector_drawable_loading2_anim"/>
+
+    </com.wordplat.ikvstockchart.InteractiveKLineLayout>
+
+</com.wordplat.quickstart.widget.pulllistview.PullListLayout>
