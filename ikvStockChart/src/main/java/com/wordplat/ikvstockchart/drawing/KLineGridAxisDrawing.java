@@ -60,12 +60,16 @@ public class KLineGridAxisDrawing implements IDrawing {
     {
         this.height = height;
     }
+    private int count = 4;
+    public void setLineCount(int count)
+    {
+        this.count = count;
+    }
 
     @Override
     public void onInit(RectF contentRect, AbstractRender render) {
         this.render = (KLineRender) render;
         final SizeColor sizeColor = render.getSizeColor();
-
         if (xLabelPaint == null) {
             xLabelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         }
@@ -102,7 +106,7 @@ public class KLineGridAxisDrawing implements IDrawing {
 
         kLineRect.set(contentRect);
 
-        lineHeight = kLineRect.height() / 4;
+        lineHeight = kLineRect.height() / count;
         lineWidth = kLineRect.width() / 4;
     }
 
@@ -120,10 +124,13 @@ public class KLineGridAxisDrawing implements IDrawing {
 
         // 绘制 三条横向网格线
         for (int i = 0 ; i < 4 ; i++) {
-            float lineTop = kLineRect.top + (i + 1) * lineHeight;
             float lineLeft = kLineRect.left + (i + 1) * lineWidth;
-            canvas.drawLine(kLineRect.left, lineTop, kLineRect.right, lineTop, gridPaint);
             canvas.drawLine(lineLeft, kLineRect.top, lineLeft, kLineRect.bottom, gridPaint);
+        }
+
+        for (int i = 0 ; i < count ; i++) {
+            float lineTop = kLineRect.top + (i + 1) * lineHeight;
+            canvas.drawLine(kLineRect.left, lineTop, kLineRect.right, lineTop, gridPaint);
         }
 
         canvas.save();
@@ -161,7 +168,7 @@ public class KLineGridAxisDrawing implements IDrawing {
     @Override
     public void onDrawOver(Canvas canvas) {
         // 绘制 Y 轴 label
-        for (int i = 0 ; i < 5 ; i++) {
+        for (int i = 0 ; i < count + 1 ; i++) {
             float lineTop = kLineRect.top + i * lineHeight;
             pointCache[1] = lineTop;
             render.invertMapPoints(pointCache);
@@ -169,7 +176,7 @@ public class KLineGridAxisDrawing implements IDrawing {
 
             if (i == 0) {
                 pointCache[0] = lineTop - fontMetrics.top;
-            } else if (i == 4) {
+            } else if (i == count     ) {
                 pointCache[0] = lineTop - fontMetrics.bottom;
             } else {
                 pointCache[0] = lineTop + fontMetrics.bottom;

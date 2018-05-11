@@ -93,7 +93,7 @@ public class YAxisTextMarkerView implements IMarkerView {
             render.invertMapPoints(null, pointCache);
             String value = decimalFormatter.format(pointCache[1]);
 
-            float width = markerTextPaint.measureText(value) + 50;
+            float width = markerTextPaint.measureText(value) + height;
 
             highlightPointY = highlightPointY - height / 2;
             if (highlightPointY < contentRect.top) {

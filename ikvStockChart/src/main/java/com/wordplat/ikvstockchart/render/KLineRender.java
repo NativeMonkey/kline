@@ -23,8 +23,10 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.RectF;
+import android.text.TextUtils;
 import android.view.animation.LinearInterpolator;
 
+import com.wordplat.ikvstockchart.drawing.BOLLDrawing;
 import com.wordplat.ikvstockchart.drawing.CandleDrawing;
 import com.wordplat.ikvstockchart.drawing.EmptyDataDrawing;
 import com.wordplat.ikvstockchart.drawing.HighlightDrawing;
@@ -106,8 +108,10 @@ public class KLineRender extends AbstractRender {
     private final KLineGridAxisDrawing kLineGridAxisDrawing = new KLineGridAxisDrawing();
     private final CandleDrawing candleDrawing = new CandleDrawing();
     private final MADrawing maDrawing = new MADrawing();
+    private final BOLLDrawing bollDrawing = new BOLLDrawing();
     private final EmptyDataDrawing emptyDataDrawing = new EmptyDataDrawing();
     private final HighlightDrawing highlightDrawing = new HighlightDrawing();
+    private String currDraw = "ma";
 
     private final List<StockIndex> stockIndexList = new ArrayList<>(); // 股票指标列表
 
@@ -116,7 +120,8 @@ public class KLineRender extends AbstractRender {
         kLineDrawingList.add(kLineGridAxisDrawing);
         kLineDrawingList.add(candleDrawing);
         kLineDrawingList.add(maDrawing);
-        kLineDrawingList.add(emptyDataDrawing);
+//        kLineDrawingList.add(bollDrawing);
+//        kLineDrawingList.add(emptyDataDrawing);
         kLineDrawingList.add(highlightDrawing);
 
         zoomAnimator.setDuration(ZOOM_DURATION);
@@ -131,11 +136,35 @@ public class KLineRender extends AbstractRender {
         });
     }
 
+    public void replaceDraw(String draw)
+    {
+        if(TextUtils.equals(draw,currDraw))
+        {
+            return;
+        }
+        currDraw = draw;
+        if(TextUtils.equals(draw,"ma"))
+        {
+            kLineDrawingList.remove(bollDrawing);
+            kLineDrawingList.add(maDrawing);
+        }
+        else if (TextUtils.equals(draw,"boll"))
+        {
+            kLineDrawingList.remove(maDrawing);
+            kLineDrawingList.add(bollDrawing);
+        }
+    }
+
 
     public void setDataHeight(int height)
     {
         kLineGridAxisDrawing.setAllHeight(height);
     }
+    public void setLineCount(int count)
+    {
+        kLineGridAxisDrawing.setLineCount(count);
+    }
+
 
     public void addDrawing(IDrawing drawing) {
         kLineDrawingList.add(drawing);

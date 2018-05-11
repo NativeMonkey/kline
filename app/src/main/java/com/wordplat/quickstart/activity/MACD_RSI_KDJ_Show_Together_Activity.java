@@ -4,10 +4,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
+import com.wordplat.ikvstockchart.KLineHandler;
 import com.wordplat.ikvstockchart.drawing.BOLLDrawing;
 import com.wordplat.ikvstockchart.drawing.KLineVolumeDrawing;
 import com.wordplat.ikvstockchart.drawing.KLineVolumeHighlightDrawing;
+import com.wordplat.ikvstockchart.entry.Entry;
+import com.wordplat.ikvstockchart.entry.SizeColor;
 import com.wordplat.ikvstockchart.entry.StockBOLLIndex;
 import com.wordplat.ikvstockchart.entry.StockKLineVolumeIndex;
 import com.wordplat.ikvstockchart.entry.StockPlaceIndex;
@@ -42,9 +54,19 @@ import java.io.InputStream;
  */
 
 @ContentView(R.layout.activity_macd_rsi_kdj_show_together)
-public class MACD_RSI_KDJ_Show_Together_Activity extends BaseActivity {
+public class MACD_RSI_KDJ_Show_Together_Activity extends BaseActivity implements View.OnClickListener{
 
     @ViewInject(R.id.kLineView) private InteractiveKLineView kLineView = null;
+    @ViewInject(R.id.MA_Text) private TextView MA_Text = null;
+    @ViewInject(R.id.StockIndex_Text) private TextView StockIndex_Text = null;
+    @ViewInject(R.id.Volume_Text) private TextView Volume_Text = null;
+    @ViewInject(R.id.tv_vol)private TextView tv_vol;
+    @ViewInject(R.id.But_Group)private RadioGroup But_Group;
+    @ViewInject(R.id.MACD_But)private RadioButton MACD_But;
+    @ViewInject(R.id.RSI_But)private RadioButton RSI_But;
+    @ViewInject(R.id.KDJ_But)private RadioButton KDJ_But;
+    @ViewInject(R.id.BOLL_But)private RadioButton BOLL_But;
+    @ViewInject(R.id.MA_But)private RadioButton MA_But;
 
     private KLineRender kLineRender;
 
@@ -52,11 +74,16 @@ public class MACD_RSI_KDJ_Show_Together_Activity extends BaseActivity {
     private StockRSIIndex rsiIndex;
     private StockKDJIndex kdjIndex;
     private StockBOLLIndex bollIndex;
+    private String currDraw = "ma";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        MACD_But.setOnClickListener(this);
+        RSI_But.setOnClickListener(this);
+        KDJ_But.setOnClickListener(this);
+        BOLL_But.setOnClickListener(this);
+        MA_But.setOnClickListener(this);
         initUI();
         loadKLineData();
     }
@@ -73,51 +100,51 @@ public class MACD_RSI_KDJ_Show_Together_Activity extends BaseActivity {
         // 成交量
         StockKLineVolumeIndex kLineVolumeIndex = new StockKLineVolumeIndex();
         kLineVolumeIndex.addDrawing(new KLineVolumeDrawing());
-//        kLineVolumeIndex.addDrawing(new KLineVolumeHighlightDrawing());
+        kLineVolumeIndex.addDrawing(new KLineVolumeHighlightDrawing());
         kLineRender.addStockIndex(kLineVolumeIndex);
 
         // MACD
-//        HighlightDrawing macdHighlightDrawing = new HighlightDrawing();
-//        macdHighlightDrawing.addMarkerView(new YAxisTextMarkerView(stockMarkerViewHeight));
+        HighlightDrawing macdHighlightDrawing = new HighlightDrawing();
+        macdHighlightDrawing.addMarkerView(new YAxisTextMarkerView(stockMarkerViewHeight));
 
         macdIndex = new StockMACDIndex();
         macdIndex.addDrawing(new MACDDrawing());
         macdIndex.addDrawing(new StockIndexYLabelDrawing());
-//        macdIndex.addDrawing(macdHighlightDrawing);
+        macdIndex.addDrawing(macdHighlightDrawing);
 //        macdIndex.setPaddingTop(paddingTop);
         kLineRender.addStockIndex(macdIndex);
 
 
         // RSI
-//        HighlightDrawing rsiHighlightDrawing = new HighlightDrawing();
-//        rsiHighlightDrawing.addMarkerView(new YAxisTextMarkerView(stockMarkerViewHeight));
+        HighlightDrawing rsiHighlightDrawing = new HighlightDrawing();
+        rsiHighlightDrawing.addMarkerView(new YAxisTextMarkerView(stockMarkerViewHeight));
 
         rsiIndex = new StockRSIIndex();
         rsiIndex.addDrawing(new RSIDrawing());
         rsiIndex.addDrawing(new StockIndexYLabelDrawing());
-//        rsiIndex.addDrawing(rsiHighlightDrawing);
+        rsiIndex.addDrawing(rsiHighlightDrawing);
 //        rsiIndex.setPaddingTop(paddingTop);
         kLineRender.addStockIndex(rsiIndex);
 
         // KDJ
-//        HighlightDrawing kdjHighlightDrawing = new HighlightDrawing();
-//        kdjHighlightDrawing.addMarkerView(new YAxisTextMarkerView(stockMarkerViewHeight));
+        HighlightDrawing kdjHighlightDrawing = new HighlightDrawing();
+        kdjHighlightDrawing.addMarkerView(new YAxisTextMarkerView(stockMarkerViewHeight));
 
         kdjIndex = new StockKDJIndex();
         kdjIndex.addDrawing(new KDJDrawing());
         kdjIndex.addDrawing(new StockIndexYLabelDrawing());
-//        kdjIndex.addDrawing(kdjHighlightDrawing);
+        kdjIndex.addDrawing(kdjHighlightDrawing);
 //        kdjIndex.setPaddingTop(paddingTop);
         kLineRender.addStockIndex(kdjIndex);
 
         // BOLL
-//        HighlightDrawing bollHighlightDrawing = new HighlightDrawing();
-//        bollHighlightDrawing.addMarkerView(new YAxisTextMarkerView(stockMarkerViewHeight));
+        HighlightDrawing bollHighlightDrawing = new HighlightDrawing();
+        bollHighlightDrawing.addMarkerView(new YAxisTextMarkerView(stockMarkerViewHeight));
 
         bollIndex = new StockBOLLIndex();
         bollIndex.addDrawing(new BOLLDrawing());
         bollIndex.addDrawing(new StockIndexYLabelDrawing());
-//        bollIndex.addDrawing(bollHighlightDrawing);
+        bollIndex.addDrawing(bollHighlightDrawing);
 //        bollIndex.setPaddingTop(paddingTop);
         kLineRender.addStockIndex(bollIndex);
 
@@ -126,8 +153,176 @@ public class MACD_RSI_KDJ_Show_Together_Activity extends BaseActivity {
 
         kLineRender.addMarkerView(new YAxisTextMarkerView(stockMarkerViewHeight));
         kLineRender.addMarkerView(new XAxisTextMarkerView(stockMarkerViewHeight));
-        showMACD();
+        initKlineHandler();
+        macdIndex.setEnable(false);
+        rsiIndex.setEnable(false);
+        kdjIndex.setEnable(false);
+        bollIndex.setEnable(false);
     }
+
+    private void initKlineHandler()
+    {
+        kLineView.setKLineHandler(new KLineHandler() {
+            @Override
+            public void onLeftRefresh() {
+
+            }
+
+            @Override
+            public void onRightRefresh() {
+
+            }
+
+            @Override
+            public void onSingleTap(MotionEvent e, float x, float y) {
+
+            }
+
+            @Override
+            public void onDoubleTap(MotionEvent e, float x, float y) {
+
+            }
+
+            @Override
+            public void onHighlight(Entry entry, int entryIndex, float x, float y) {
+                final SizeColor sizeColor = kLineRender.getSizeColor();
+
+                immediatelyShow(entry,sizeColor,currDraw);
+
+                String volumeString = String.format(getResources().getString(R.string.volume_highlight),
+                        entry.getVolumeMa5(),
+                        entry.getVolumeMa10());
+
+                Volume_Text.setText(getSpannableString(volumeString,
+                        sizeColor.getMa5Color(),
+                        sizeColor.getMa10Color(),
+                        0));
+
+                SpannableString spanString = new SpannableString("");
+                if (isShownMACD()) {
+                    String str = String.format(getResources().getString(R.string.macd_highlight),
+                            entry.getDiff(),
+                            entry.getDea(),
+                            entry.getMacd());
+
+                    spanString = getSpannableString(str,
+                            sizeColor.getDiffLineColor(),
+                            sizeColor.getDeaLineColor(),
+                            sizeColor.getMacdHighlightTextColor());
+
+                } else if (isShownKDJ()) {
+                    String str = String.format(getResources().getString(R.string.kdj_highlight),
+                            entry.getK(),
+                            entry.getD(),
+                            entry.getJ());
+
+                    spanString = getSpannableString(str,
+                            sizeColor.getKdjKLineColor(),
+                            sizeColor.getKdjDLineColor(),
+                            sizeColor.getKdjJLineColor());
+
+                } else if (isShownRSI()) {
+                    String str = String.format(getResources().getString(R.string.rsi_highlight),
+                            entry.getRsi1(),
+                            entry.getRsi2(),
+                            entry.getRsi3());
+
+                    spanString = getSpannableString(str,
+                            sizeColor.getRsi1LineColor(),
+                            sizeColor.getRsi2LineColor(),
+                            sizeColor.getRsi3LineColor());
+
+                } else if (isShownBOLL()) {
+                    String str = String.format(getResources().getString(R.string.boll_highlight),
+                            entry.getMb(),
+                            entry.getUp(),
+                            entry.getDn());
+
+                    spanString = getSpannableString(str,
+                            sizeColor.getBollMidLineColor(),
+                            sizeColor.getBollUpperLineColor(),
+                            sizeColor.getBollLowerLineColor());
+                }
+                StockIndex_Text.setText(spanString);
+            }
+
+            @Override
+            public void onCancelHighlight() {
+
+            }
+        });
+    }
+    private  void immediatelyShow(Entry entry,SizeColor sizeColor,String draw)
+    {
+        if(TextUtils.equals(draw,"ma"))
+        {
+            String maString = String.format(getResources().getString(R.string.ma_highlight),
+                    entry.getMa5(),
+                    entry.getMa10(),
+                    entry.getMa20());
+
+            MA_Text.setText(getSpannableString(maString,
+                    sizeColor.getMa5Color(),
+                    sizeColor.getMa10Color(),
+                    sizeColor.getMa20Color()));
+        }
+        else if(TextUtils.equals(draw,"boll"))
+        {
+            String maString = String.format(getResources().getString(R.string.boll_highlight),
+                    entry.getMb(),
+                    entry.getUp(),
+                    entry.getDn());
+
+            MA_Text.setText(getSpannableString(maString,
+                    sizeColor.getBollMidLineColor(),
+                    sizeColor.getBollUpperLineColor(),
+                    sizeColor.getBollLowerLineColor()));
+        }
+    }
+
+    public boolean isShownMACD() {
+        return macdIndex.isEnable();
+    }
+
+    public boolean isShownRSI() {
+        return rsiIndex.isEnable();
+    }
+
+    public boolean isShownKDJ() {
+        return kdjIndex.isEnable();
+    }
+
+    public boolean isShownBOLL() {
+        return bollIndex.isEnable();
+    }
+
+    private SpannableString getSpannableString(String str, int partColor0, int partColor1, int partColor2) {
+        String[] splitString = str.split("[●]");
+        SpannableString spanString = new SpannableString(str);
+
+        int pos0 = splitString[0].length();
+        int pos1 = pos0 + splitString[1].length() + 1;
+        int end = str.length();
+
+        spanString.setSpan(new ForegroundColorSpan(partColor0),
+                pos0, pos1, SpannableString.SPAN_EXCLUSIVE_INCLUSIVE);
+
+        if (splitString.length > 2) {
+            int pos2 = pos1 + splitString[2].length() + 1;
+
+            spanString.setSpan(new ForegroundColorSpan(partColor1),
+                    pos1, pos2, SpannableString.SPAN_EXCLUSIVE_INCLUSIVE);
+
+            spanString.setSpan(new ForegroundColorSpan(partColor2),
+                    pos2, end, SpannableString.SPAN_EXCLUSIVE_INCLUSIVE);
+        } else {
+            spanString.setSpan(new ForegroundColorSpan(partColor1),
+                    pos1, end, SpannableString.SPAN_EXCLUSIVE_INCLUSIVE);
+        }
+
+        return spanString;
+    }
+
 
     public void showMACD() {
         macdIndex.setEnable(true);
@@ -207,5 +402,47 @@ public class MACD_RSI_KDJ_Show_Together_Activity extends BaseActivity {
     public static Intent createIntent(Context context) {
         Intent intent = new Intent(context, MACD_RSI_KDJ_Show_Together_Activity.class);
         return intent;
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId())
+        {
+            case R.id.BOLL_But:
+                currDraw = "boll";
+                kLineRender.replaceDraw("boll");
+                break;
+            case R.id.MA_But:
+                currDraw = "ma";
+                kLineRender.replaceDraw("ma");
+                break;
+            case R.id.MACD_But:
+                showMACD();
+                kLineRender.setLineCount(3);
+                showNum();
+                break;
+            case R.id.RSI_But:
+                showRSI();
+                kLineRender.setLineCount(3);
+                showNum();
+                break;
+            case R.id.KDJ_But:
+                showKDJ();
+                kLineRender.setLineCount(3);
+                showNum();
+                break;
+        }
+        kLineView.notifyDataSetChanged();
+    }
+
+    private void showNum()
+    {
+        RelativeLayout.LayoutParams lp1 = (RelativeLayout.LayoutParams) tv_vol.getLayoutParams();
+        lp1.bottomMargin = AppUtils.dpTopx(this,146);
+        tv_vol.setLayoutParams(lp1);
+        RelativeLayout.LayoutParams lp2 = (RelativeLayout.LayoutParams) Volume_Text.getLayoutParams();
+        lp2.bottomMargin = AppUtils.dpTopx(this,146);
+        Volume_Text.setLayoutParams(lp2);
+        StockIndex_Text.setVisibility(View.VISIBLE);
     }
 }

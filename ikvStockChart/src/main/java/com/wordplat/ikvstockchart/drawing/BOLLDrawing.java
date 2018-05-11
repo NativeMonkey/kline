@@ -139,11 +139,11 @@ public class BOLLDrawing implements IDrawing{
 //        canvas.drawRect(indexRect, axisPaint);
 
         // 绘制 三条横向网格线
-        for (int i = 0 ; i < 4 ; i++) {
-            float lineLeft = indexRect.left + (i + 1) * lineWidth;
-            canvas.drawLine(lineLeft, indexRect.top,lineLeft, indexRect.bottom, axisPaint);
-        }
-        canvas.drawLine(indexRect.left, indexRect.top + lineHeight, indexRect.right, indexRect.top + lineHeight, axisPaint);
+//        for (int i = 0 ; i < 4 ; i++) {
+//            float lineLeft = indexRect.left + (i + 1) * lineWidth;
+//            canvas.drawLine(lineLeft, indexRect.top,lineLeft, indexRect.bottom, axisPaint);
+//        }
+//        canvas.drawLine(indexRect.left, indexRect.top + lineHeight, indexRect.right, indexRect.top + lineHeight, axisPaint);
 
         gridBuffer[0] = 0;
         gridBuffer[1] = (maxY + minY) / 2;

@@ -26,6 +26,8 @@ import android.util.Log;
 
 import com.wordplat.ikvstockchart.entry.SizeColor;
 import com.wordplat.ikvstockchart.marker.IMarkerView;
+import com.wordplat.ikvstockchart.marker.XAxisTextMarkerView;
+import com.wordplat.ikvstockchart.marker.YAxisTextMarkerView;
 import com.wordplat.ikvstockchart.render.AbstractRender;
 
 import java.util.ArrayList;
@@ -40,8 +42,7 @@ import java.util.List;
 
 public class HighlightDrawing implements IDrawing {
 
-    protected Paint highlightPaintY; // 高亮线条画笔
-    protected Paint highlightPaintX; // 高亮线条画笔
+    protected Paint highlightPaint; // 高亮线条画笔
 
     protected final RectF contentRect = new RectF(); // 绘图区域
     protected AbstractRender render;
@@ -67,23 +68,23 @@ public class HighlightDrawing implements IDrawing {
         this.render = render;
         final SizeColor sizeColor = render.getSizeColor();
 
-        if (highlightPaintX == null) {
-            highlightPaintX = new Paint(Paint.ANTI_ALIAS_FLAG);
-            highlightPaintX.setStyle(Paint.Style.STROKE);
+        if (highlightPaint == null) {
+            highlightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            highlightPaint.setStyle(Paint.Style.STROKE);
         }
-        highlightPaintX.setStrokeWidth(2f);
-        highlightPaintX.setColor(sizeColor.getHighlightColor());
+        highlightPaint.setStrokeWidth(2f);
+        highlightPaint.setColor(sizeColor.getHighlightColor());
 
-        if (highlightPaintY == null) {
-            highlightPaintY = new Paint(Paint.ANTI_ALIAS_FLAG);
-            highlightPaintY.setStyle(Paint.Style.STROKE);
-        }
-        highlightPaintY.setStrokeWidth(18f);
-        highlightPaintY.setColor(Color.parseColor("#50000000"));
-        this.contentRect.set(render.getViewRect());
+        this.contentRect.set(contentRect);
         if (markerViewList.size() > 0) {
             for (IMarkerView markerView : markerViewList) {
-                markerView.onInitMarkerView(this.contentRect, this.render);
+                if(markerView instanceof YAxisTextMarkerView) {
+                    markerView.onInitMarkerView(contentRect, this.render);
+                }
+                else if(markerView instanceof XAxisTextMarkerView)
+                {
+                    markerView.onInitMarkerView(this.render.getViewRect(), this.render);
+                }
             }
         }
     }
@@ -95,7 +96,6 @@ public class HighlightDrawing implements IDrawing {
 
     @Override
     public void onComputeOver(Canvas canvas, int minIndex, int maxIndex, float minY, float maxY) {
-        Log.e("com",minY+"==="+maxY);
     }
 
     @Override
@@ -104,7 +104,7 @@ public class HighlightDrawing implements IDrawing {
         if (render.isHighlight()) {
             final float[] highlightPoint = render.getHighlightPoint();
             canvas.save();
-            canvas.clipRect(contentRect);
+            canvas.clipRect(this.render.getViewRect());
 
             if (markerViewList.size() > 0) {
                 for (IMarkerView markerView : markerViewList) {
@@ -113,8 +113,9 @@ public class HighlightDrawing implements IDrawing {
                             highlightPoint[1]);
                 }
             }
-            canvas.drawLine(highlightPoint[0], contentRect.top, highlightPoint[0], contentRect.bottom, highlightPaintY);
-            canvas.drawLine(contentRect.left, highlightPoint[1], contentRect.right, highlightPoint[1], highlightPaintX);
+            canvas.clipRect(contentRect);
+            canvas.drawLine(highlightPoint[0], contentRect.top, highlightPoint[0], contentRect.bottom, highlightPaint);
+            canvas.drawLine(contentRect.left, highlightPoint[1], contentRect.right, highlightPoint[1], highlightPaint);
 
             canvas.restore();
         }

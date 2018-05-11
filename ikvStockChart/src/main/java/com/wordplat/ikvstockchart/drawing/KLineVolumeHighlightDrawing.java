@@ -20,7 +20,7 @@ public class KLineVolumeHighlightDrawing extends HighlightDrawing {
             canvas.save();
             canvas.clipRect(contentRect);
 
-            canvas.drawLine(highlightPoint[0], contentRect.top, highlightPoint[0], contentRect.bottom, highlightPaintY);
+            canvas.drawLine(highlightPoint[0], contentRect.top, highlightPoint[0], contentRect.bottom, highlightPaint);
 
             canvas.restore();
         }

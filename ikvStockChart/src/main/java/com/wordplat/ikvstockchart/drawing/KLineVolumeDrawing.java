@@ -3,6 +3,7 @@ package com.wordplat.ikvstockchart.drawing;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.text.SpannableString;
 import android.util.Log;
 
 import com.wordplat.ikvstockchart.compat.ViewUtils;
@@ -74,7 +75,6 @@ public class KLineVolumeDrawing implements IDrawing {
 
         ma5Paint.setColor(sizeColor.getMa5Color());
         ma10Paint.setColor(sizeColor.getMa10Color());
-
         candleRect.set(contentRect);
         lineWidth = candleRect.width() / 4;
         lineHeight = candleRect.height();
@@ -126,7 +126,6 @@ public class KLineVolumeDrawing implements IDrawing {
             canvas.drawLine(lineLeft, candleRect.top,lineLeft, candleRect.bottom, axisPaint);
         }
         canvas.drawLine(candleRect.left, candleRect.top + lineHeight, candleRect.right, candleRect.top + lineHeight, axisPaint);
-
         for (int i = minIndex; i < maxIndex; i++) {
             // 设置画笔颜色
             Entry entry = ViewUtils.setUpCandlePaint(candlePaint, entrySet, i, sizeColor);
@@ -139,7 +138,7 @@ public class KLineVolumeDrawing implements IDrawing {
             render.mapPoints(xRectBuffer);
 
             candleBuffer[0] = 0;
-            candleBuffer[1] = entry.getVolume();
+            candleBuffer[1] = entry.getVolume() ;
             candleBuffer[2] = 0;
             candleBuffer[3] = minY;
 
