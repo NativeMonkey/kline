@@ -123,6 +123,10 @@ public class InteractiveKLineView extends View {
     public void setEntrySet(EntrySet set) {
         entrySet = set;
     }
+    public EntrySet getEntrySet() {
+        return entrySet;
+    }
+
 
     public void notifyDataSetChanged() {
         notifyDataSetChanged(true);

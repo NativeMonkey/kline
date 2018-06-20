@@ -21,6 +21,7 @@ package com.wordplat.ikvstockchart.drawing;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.util.Log;
 
 import com.wordplat.ikvstockchart.entry.Entry;
 import com.wordplat.ikvstockchart.entry.EntrySet;
@@ -71,8 +72,8 @@ public class TimeLineDrawing implements IDrawing {
         final Entry entry = entrySet.getEntryList().get(currentIndex);
         final int i = currentIndex - minIndex;
 
-        if (currentIndex < maxIndex) {
-            lineBuffer[i * 4 + 0] = currentIndex;
+        if (currentIndex < maxIndex - 1) {
+            lineBuffer[i * 4] = currentIndex;
             lineBuffer[i * 4 + 1] = entry.getClose();
             lineBuffer[i * 4 + 2] = currentIndex + 1;
             lineBuffer[i * 4 + 3] = entrySet.getEntryList().get(currentIndex + 1).getClose();
@@ -89,7 +90,7 @@ public class TimeLineDrawing implements IDrawing {
         final int count = (maxIndex - minIndex) * 4;
 
         if (count > 0) {
-//            canvas.drawLines(lineBuffer, 0, count, linePaint);
+            canvas.drawLines(lineBuffer, 0, count, linePaint);
         }
 
         // 计算高亮坐标
@@ -101,12 +102,15 @@ public class TimeLineDrawing implements IDrawing {
             render.invertMapPoints(pointBuffer);
             final int highlightIndex = pointBuffer[0] < 0 ? 0 : (int) pointBuffer[0];
             final int i = highlightIndex - minIndex;
-            highlightPoint[0] = highlightIndex < lastEntryIndex ?
-                    lineBuffer[i * 4 + 0] : lineBuffer[lastEntryIndex * 4 + 2];
-            highlightPoint[1] = highlightIndex < lastEntryIndex ?
-                    lineBuffer[i * 4 + 1] : lineBuffer[lastEntryIndex * 4 + 3];
+            entrySet.setHighlightIndex(highlightIndex);
+            Log.e("indexOut",i+"==="+ highlightIndex + "==="+lastEntryIndex);
+            if(i >= 0 && highlightIndex < lastEntryIndex ) {
+                highlightPoint[0] = highlightIndex < lastEntryIndex ?
+                        lineBuffer[i * 4]: lineBuffer[lastEntryIndex * 4 + 2];
+                highlightPoint[1] = highlightIndex < lastEntryIndex ?
+                        lineBuffer[i * 4 + 1] : lineBuffer[lastEntryIndex * 4 + 3];
+            }
         }
-
         canvas.restore();
     }
 

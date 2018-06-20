@@ -106,5 +106,20 @@
 
     </RadioGroup>
 
+    <Button
+        android:id="@+id/btn_fen"
+        android:layout_marginTop="450dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="分时图"/>
+
+    <Button
+        android:id="@+id/btn_k"
+        android:layout_marginTop="450dp"
+        android:layout_marginLeft="100dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="k线图"/>
+
 
 </RelativeLayout>

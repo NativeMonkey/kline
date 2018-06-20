@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
@@ -23,6 +24,7 @@ import com.wordplat.ikvstockchart.entry.SizeColor;
 import com.wordplat.ikvstockchart.entry.StockBOLLIndex;
 import com.wordplat.ikvstockchart.entry.StockKLineVolumeIndex;
 import com.wordplat.ikvstockchart.entry.StockPlaceIndex;
+import com.wordplat.ikvstockchart.render.TimeLineRender;
 import com.wordplat.quickstart.R;
 import com.wordplat.quickstart.utils.AppUtils;
 import com.wordplat.ikvstockchart.InteractiveKLineView;
@@ -67,14 +69,19 @@ public class MACD_RSI_KDJ_Show_Together_Activity extends BaseActivity implements
     @ViewInject(R.id.KDJ_But)private RadioButton KDJ_But;
     @ViewInject(R.id.BOLL_But)private RadioButton BOLL_But;
     @ViewInject(R.id.MA_But)private RadioButton MA_But;
+    @ViewInject(R.id.btn_fen)private Button btn_fen;
+    @ViewInject(R.id.btn_k)private Button btn_k;
 
     private KLineRender kLineRender;
+    private TimeLineRender timeLineRender;
 
     private StockMACDIndex macdIndex;
     private StockRSIIndex rsiIndex;
     private StockKDJIndex kdjIndex;
     private StockBOLLIndex bollIndex;
     private String currDraw = "ma";
+
+    private final EntrySet entrySet = new EntrySet();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,15 +91,109 @@ public class MACD_RSI_KDJ_Show_Together_Activity extends BaseActivity implements
         KDJ_But.setOnClickListener(this);
         BOLL_But.setOnClickListener(this);
         MA_But.setOnClickListener(this);
-        initUI();
+        kLineView.setEnableLeftRefresh(false);
+        kLineView.setEnableRightRefresh(false);
+        btn_fen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                initTimeUi();
+                kLineView.notifyDataSetChanged();
+            }
+        });
+        btn_k.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                initUI();
+                kLineView.notifyDataSetChanged();
+            }
+        });
+        initTimeUi();
         loadKLineData();
     }
 
-    private void initUI() {
-        kLineView.setEnableLeftRefresh(false);
-        kLineView.setEnableRightRefresh(false);
-        kLineRender = (KLineRender) kLineView.getRender();
+    private void initTimeUi()
+    {
+//        if(timeLineRender != null)
+//        {
+//            kLineView.setRender(timeLineRender);
+//            kLineView.notifyDataSetChanged();
+//            return;
+//        }
+        timeLineRender = new TimeLineRender(this);
+        final int stockMarkerViewHeight = AppUtils.dpTopx(mActivity, 15);
+        timeLineRender.setDataHeight(stockMarkerViewHeight);
 
+        // 成交量
+        StockKLineVolumeIndex kLineVolumeIndex = new StockKLineVolumeIndex();
+        kLineVolumeIndex.addDrawing(new KLineVolumeDrawing());
+        kLineVolumeIndex.addDrawing(new KLineVolumeHighlightDrawing());
+        timeLineRender.addStockIndex(kLineVolumeIndex);
+
+        // MACD
+        HighlightDrawing macdHighlightDrawing = new HighlightDrawing();
+        macdHighlightDrawing.addMarkerView(new YAxisTextMarkerView(stockMarkerViewHeight));
+
+        macdIndex = new StockMACDIndex();
+        macdIndex.addDrawing(new MACDDrawing());
+        macdIndex.addDrawing(new StockIndexYLabelDrawing());
+        macdIndex.addDrawing(macdHighlightDrawing);
+//        macdIndex.setPaddingTop(paddingTop);
+        timeLineRender.addStockIndex(macdIndex);
+
+
+        // RSI
+        HighlightDrawing rsiHighlightDrawing = new HighlightDrawing();
+        rsiHighlightDrawing.addMarkerView(new YAxisTextMarkerView(stockMarkerViewHeight));
+
+        rsiIndex = new StockRSIIndex();
+        rsiIndex.addDrawing(new RSIDrawing());
+        rsiIndex.addDrawing(new StockIndexYLabelDrawing());
+        rsiIndex.addDrawing(rsiHighlightDrawing);
+//        rsiIndex.setPaddingTop(paddingTop);
+        timeLineRender.addStockIndex(rsiIndex);
+
+        // KDJ
+        HighlightDrawing kdjHighlightDrawing = new HighlightDrawing();
+        kdjHighlightDrawing.addMarkerView(new YAxisTextMarkerView(stockMarkerViewHeight));
+
+        kdjIndex = new StockKDJIndex();
+        kdjIndex.addDrawing(new KDJDrawing());
+        kdjIndex.addDrawing(new StockIndexYLabelDrawing());
+        kdjIndex.addDrawing(kdjHighlightDrawing);
+//        kdjIndex.setPaddingTop(paddingTop);
+        timeLineRender.addStockIndex(kdjIndex);
+
+        // BOLL
+        HighlightDrawing bollHighlightDrawing = new HighlightDrawing();
+        bollHighlightDrawing.addMarkerView(new YAxisTextMarkerView(stockMarkerViewHeight));
+
+        bollIndex = new StockBOLLIndex();
+        bollIndex.addDrawing(new BOLLDrawing());
+        bollIndex.addDrawing(new StockIndexYLabelDrawing());
+        bollIndex.addDrawing(bollHighlightDrawing);
+//        bollIndex.setPaddingTop(paddingTop);
+        timeLineRender.addStockIndex(bollIndex);
+
+        StockPlaceIndex stockPlaceIndex = new StockPlaceIndex(stockMarkerViewHeight);
+        timeLineRender.addStockIndex(stockPlaceIndex);
+
+        timeLineRender.addMarkerView(new YAxisTextMarkerView(stockMarkerViewHeight));
+        timeLineRender.addMarkerView(new XAxisTextMarkerView(stockMarkerViewHeight));
+        initKlineHandler();
+        macdIndex.setEnable(false);
+        rsiIndex.setEnable(false);
+        kdjIndex.setEnable(false);
+        bollIndex.setEnable(false);
+        kLineView.setRender(timeLineRender);
+    }
+
+    private void initUI() {
+//        if(kLineRender != null) {
+//            kLineView.setRender(kLineRender);
+//            kLineView.notifyDataSetChanged();
+//            return;
+//        }
+        kLineRender = new KLineRender(this);
         //        final int paddingTop = AppUtils.dpTopx(mActivity, 10);
         final int stockMarkerViewHeight = AppUtils.dpTopx(mActivity, 15);
         kLineRender.setDataHeight(stockMarkerViewHeight);
@@ -158,7 +259,9 @@ public class MACD_RSI_KDJ_Show_Together_Activity extends BaseActivity implements
         rsiIndex.setEnable(false);
         kdjIndex.setEnable(false);
         bollIndex.setEnable(false);
+        kLineView.setRender(kLineRender);
     }
+
 
     private void initKlineHandler()
     {
@@ -185,7 +288,11 @@ public class MACD_RSI_KDJ_Show_Together_Activity extends BaseActivity implements
 
             @Override
             public void onHighlight(Entry entry, int entryIndex, float x, float y) {
-                final SizeColor sizeColor = kLineRender.getSizeColor();
+                SizeColor sizeColor;
+                if(kLineView.getRender() instanceof KLineRender)
+                    sizeColor  = kLineRender.getSizeColor();
+                else
+                    sizeColor  = timeLineRender.getSizeColor();
 
                 immediatelyShow(entry,sizeColor,currDraw);
 
@@ -410,26 +517,53 @@ public class MACD_RSI_KDJ_Show_Together_Activity extends BaseActivity implements
         {
             case R.id.BOLL_But:
                 currDraw = "boll";
-                kLineRender.replaceDraw("boll");
+                if(kLineView.getRender() instanceof KLineRender)
+                    kLineRender.replaceDraw("boll");
+                else
+                    timeLineRender.replaceDraw("boll");
                 break;
             case R.id.MA_But:
                 currDraw = "ma";
-                kLineRender.replaceDraw("ma");
+                if(kLineView.getRender() instanceof KLineRender)
+                    kLineRender.replaceDraw("ma");
+                else
+                    timeLineRender.replaceDraw("ma");
                 break;
             case R.id.MACD_But:
-                showMACD();
-                kLineRender.setLineCount(3);
-                showNum();
+                if(kLineView.getRender() instanceof KLineRender) {
+                    showMACD();
+                    kLineRender.setLineCount(3);
+                    showNum();
+                }
+                else {
+                    showMACD();
+                    timeLineRender.setLineCount(3);
+                    showNum();
+                }
                 break;
             case R.id.RSI_But:
-                showRSI();
-                kLineRender.setLineCount(3);
-                showNum();
+                if(kLineView.getRender() instanceof KLineRender) {
+                    showRSI();
+                    kLineRender.setLineCount(3);
+                    showNum();
+                }
+                else {
+                    showRSI();
+                    timeLineRender.setLineCount(3);
+                    showNum();
+                }
                 break;
             case R.id.KDJ_But:
-                showKDJ();
-                kLineRender.setLineCount(3);
-                showNum();
+                if(kLineView.getRender() instanceof KLineRender) {
+                    showKDJ();
+                    kLineRender.setLineCount(3);
+                    showNum();
+                }
+                else {
+                    showKDJ();
+                    timeLineRender.setLineCount(3);
+                    showNum();
+                }
                 break;
         }
         kLineView.notifyDataSetChanged();

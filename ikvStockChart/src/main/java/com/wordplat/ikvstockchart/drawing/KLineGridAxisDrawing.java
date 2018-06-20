@@ -27,6 +27,7 @@ import com.wordplat.ikvstockchart.entry.EntrySet;
 import com.wordplat.ikvstockchart.entry.SizeColor;
 import com.wordplat.ikvstockchart.render.AbstractRender;
 import com.wordplat.ikvstockchart.render.KLineRender;
+import com.wordplat.ikvstockchart.render.TimeLineRender;
 
 import java.text.DecimalFormat;
 
@@ -47,7 +48,7 @@ public class KLineGridAxisDrawing implements IDrawing {
     private final DecimalFormat decimalFormatter = new DecimalFormat("0.00");
 
     private final RectF kLineRect = new RectF(); // K 线图显示区域
-    private KLineRender render;
+    private AbstractRender render;
 
     private final float[] pointCache = new float[2];
     private float lineHeight;
@@ -68,7 +69,7 @@ public class KLineGridAxisDrawing implements IDrawing {
 
     @Override
     public void onInit(RectF contentRect, AbstractRender render) {
-        this.render = (KLineRender) render;
+        this.render = render;
         final SizeColor sizeColor = render.getSizeColor();
         if (xLabelPaint == null) {
             xLabelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -137,7 +138,13 @@ public class KLineGridAxisDrawing implements IDrawing {
         canvas.clipRect(render.getViewRect().left, render.getViewRect().top, render.getViewRect().right, render.getViewRect().bottom);
 
         // 每隔特定个 entry，绘制一条竖向网格线和 X 轴 label
-        final int count = render.getZoomTimes() < 0 ? Math.abs(7 * render.getZoomTimes()) + 2 : 7;
+        final int count;
+        if(render instanceof KLineRender) {
+            count = ((KLineRender) render).getZoomTimes() < 0 ? Math.abs(7 * ((KLineRender) render).getZoomTimes()) + 2 : 7;
+        }
+        else {
+            count = ((TimeLineRender) render).getZoomTimes() < 0 ? Math.abs(7 * ((TimeLineRender) render).getZoomTimes()) + 2 : 7;
+        }
         final int lastIndex = entrySet.getEntryList().size() - 1;
         for (int i = minIndex; i < maxIndex; i++) {
             // 跳过首个 entry 和最后一个 entry，因为画出来不好看
@@ -145,7 +152,13 @@ public class KLineGridAxisDrawing implements IDrawing {
                 continue;
             }
             if (i % count == 0) {
-                pointCache[0] = i + 0.5f;
+                if(render instanceof KLineRender) {
+                    pointCache[0] = i + 0.5f;
+                }
+                else {
+                    pointCache[0] = i;
+                }
+
                 render.mapPoints(pointCache);
 
                 canvas.drawText(
@@ -155,7 +168,16 @@ public class KLineGridAxisDrawing implements IDrawing {
                         xLabelPaint);
 
                 // 跳过超出显示区域的线
-                if (pointCache[0] < render.getKLineRect().left || pointCache[0] > render.getKLineRect().right) {
+                float left,right;
+                if(render instanceof KLineRender) {
+                    left = ((KLineRender) render).getKLineRect().left;
+                    right = ((KLineRender) render).getKLineRect().right;
+                }
+                else {
+                    left = ((TimeLineRender) render).getKLineRect().left;
+                    right = ((TimeLineRender) render).getKLineRect().right;
+                }
+                if (pointCache[0] < left || pointCache[0] > right) {
                     continue;
                 }
 
@@ -176,7 +198,7 @@ public class KLineGridAxisDrawing implements IDrawing {
 
             if (i == 0) {
                 pointCache[0] = lineTop - fontMetrics.top;
-            } else if (i == count     ) {
+            } else if (i == count) {
                 pointCache[0] = lineTop - fontMetrics.bottom;
             } else {
                 pointCache[0] = lineTop + fontMetrics.bottom;

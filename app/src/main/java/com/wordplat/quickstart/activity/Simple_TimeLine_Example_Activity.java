@@ -38,7 +38,7 @@ public class Simple_TimeLine_Example_Activity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        initUI();
+
     }
 
     @Override
@@ -56,10 +56,6 @@ public class Simple_TimeLine_Example_Activity extends BaseActivity {
         presenter.detachView();
     }
 
-    private void initUI() {
-        timeLineView.setEntrySet(entrySet);
-        timeLineView.setRender(new TimeLineRender());
-    }
 
     private LoadingViewListener btcChinaListener = new LoadingViewListener() {
         @Override

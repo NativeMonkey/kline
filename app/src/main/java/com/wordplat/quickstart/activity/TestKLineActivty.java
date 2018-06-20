@@ -36,7 +36,7 @@ public class TestKLineActivty extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        initUI();
+
         loadData();
     }
 
@@ -71,10 +71,6 @@ public class TestKLineActivty extends BaseActivity {
         presenter.detachView();
     }
 
-    private void initUI() {
-        timeLineView.setEntrySet(entrySet);
-        timeLineView.setRender(new TimeLineRender());
-    }
 
     private LoadingViewListener btcChinaListener = new LoadingViewListener() {
         @Override
